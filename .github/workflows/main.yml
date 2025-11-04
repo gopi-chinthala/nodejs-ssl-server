@@ -2,9 +2,9 @@ name: CI - Node.js App (GitLeaks + Tests)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   ci-checks:
