@@ -1,6 +1,13 @@
+name: Deploy Node.js App to EC2
+
+on:
+  push:
+    branches: [ main ]   # or 'master' if your repo branch is master
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Debug Host Secret
         run: echo "Host IP from secret: ${{ secrets.HOST_IP }}"
