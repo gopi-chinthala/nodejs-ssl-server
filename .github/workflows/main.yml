@@ -9,15 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug Host Secret
-        run: echo "Host IP from secret: ${{ secrets.HOST_IP }}"
+      - name: Debug Host Variable
+        run: |
+          echo "Host IP from variable: ${{ vars.HOST_IP }}"
 
       - name: Deploy to EC2 instance
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.HOST_IP }}
+          host: ${{ vars.HOST_IP }}
           username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
+          key: ${{ vars.SSH_KEY }}
           script: |
             cd /home/ubuntu/nodejs-ssl-server
             git pull origin main
