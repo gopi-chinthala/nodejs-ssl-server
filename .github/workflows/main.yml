@@ -1,26 +1,20 @@
-name: Deploy Node.js App to EC2
+name: Test SSH Connection to EC2
 
 on:
-  push:
-    branches: [ master ]   # or 'master' if your repo branch is master
+  workflow_dispatch:
 
 jobs:
-  deploy:
+  test-ssh:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Debug Host Variable
-        run: |
-          echo "Host IP from variable: ${{ vars.HOST_IP }}"
-
-      - name: Deploy to EC2 instance
-        uses: appleboy/ssh-action@master
+      - name: Test SSH connection
+        uses: appleboy/ssh-action@v0.1.10
         with:
-          host: ${{ vars.HOST_IP }}
-          username: ubuntu
-          key: ${{ vars.SSH_KEY }}
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ubuntu/nodejs-ssl-server
-            git pull origin main
-            npm install
-            pm2 restart nodejs-ssl-server || pm2 start app.js --name nodejs-ssl-server
+            echo "✅ SSH connection successful!"
+            hostname
+            whoami
