@@ -2,7 +2,7 @@ name: Deploy Node.js App to EC2
 
 on:
   push:
-    branches: [ main ]   # or 'master' if your repo branch is master
+    branches: [ master ]   # or 'master' if your repo branch is master
 
 jobs:
   deploy:
