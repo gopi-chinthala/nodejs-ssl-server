@@ -1,45 +1,22 @@
-name: CI - Node.js App (GitLeaks + Tests)
+name: Deploy Node.js App to EC2
 
 on:
   push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+    branches: [ main ]   # change to 'master' if your branch is named master
 
 jobs:
-  ci-checks:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout code
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # Step 2: Setup Node.js
-      - name: Setup Node.js (LTS)
-        uses: actions/setup-node@v4
+      - name: Deploy to EC2 instance
+        uses: appleboy/ssh-action@master
         with:
-          node-version: 20
-
-      # Step 3: Install dependencies
-      - name: Install dependencies
-        run: npm ci
-
-      # Step 4: Run tests
-      - name: Run application tests
-        run: npm test
-
-      # Step 5: Run GitLeaks to scan for secrets
-      - name: Run GitLeaks (secret scanning)
-        uses: zricethezav/gitleaks-action@v2
-        with:
-          config-path: .gitleaks.toml
-          args: --verbose
-
-      # Step 6: Upload test results as artifact (optional)
-      - name: Upload test logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-logs
-          path: ./test-results/
+          host: ${{ secrets.HOST_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ubuntu/nodejs-ssl-server
+            git pull origin main
+            npm install
+            pm2 restart nodejs-ssl-server || pm2 start app.js --name nodejs-ssl-server
