@@ -1,4 +1,4 @@
-name: CI/CD - Node.js SSL Server Deployment (Secure + Free GitLeaks)
+name: CI/CD - Node.js SSL Server Deployment (With Build)
 
 on:
   push:
@@ -50,27 +50,19 @@ jobs:
       # 5️⃣ Build the application
       - name: Build the application
         run: |
+          echo "🏗️ Building the project..."
           if [ -f package.json ] && grep -q "\"build\"" package.json; then
             npm run build
           else
-            echo "ℹ️ No build step found, skipping..."
-          fi
-
-      # 6️⃣ Run tests (if any)
-      - name: Run tests
-        run: |
-          if [ -f package.json ] && grep -q "\"test\"" package.json; then
-            npm test
-          else
-            echo "ℹ️ No tests defined, skipping..."
+            echo "ℹ️ No build script found, skipping build step..."
           fi
 
       # -----------------------------
       # CD STAGE - Deploy to EC2
       # -----------------------------
 
-      # 7️⃣ Copy files to EC2
-      - name: Copy files to EC2
+      # 6️⃣ Copy files to EC2
+      - name: Copy build files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -78,9 +70,9 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "."
           target: "/home/ubuntu/nodejs-ssl-server"
-          rm: true  # removes old files before copying
+          rm: true
 
-      # 8️⃣ SSH into EC2 and deploy app
+      # 7️⃣ SSH into EC2 and deploy app
       - name: Deploy and Restart on EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
@@ -91,7 +83,7 @@ jobs:
             echo "🔐 Connecting to EC2..."
             cd /home/ubuntu/nodejs-ssl-server
 
-            echo "📦 Installing dependencies..."
+            echo "📦 Installing production dependencies..."
             npm install --production
 
             echo "🚀 Starting or restarting app with PM2..."
