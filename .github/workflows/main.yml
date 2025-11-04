@@ -1,4 +1,4 @@
-name: CI/CD - Node.js SSL Server Deployment (With Build)
+name: CI/CD - Node.js SSL Server Deployment (Final Version)
 
 on:
   push:
@@ -61,7 +61,18 @@ jobs:
       # CD STAGE - Deploy to EC2
       # -----------------------------
 
-      # 6️⃣ Copy files to EC2
+      # 6️⃣ Ensure target directory exists on EC2
+      - name: Ensure deploy directory exists
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            mkdir -p /home/ubuntu/nodejs-ssl-server
+            chmod -R 755 /home/ubuntu/nodejs-ssl-server
+
+      # 7️⃣ Copy build files to EC2 (safe copy)
       - name: Copy build files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -70,9 +81,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "."
           target: "/home/ubuntu/nodejs-ssl-server"
-          rm: true
 
-      # 7️⃣ SSH into EC2 and deploy app
+      # 8️⃣ SSH into EC2 and deploy app
       - name: Deploy and Restart on EC2
         uses: appleboy/ssh-action@v0.1.10
         with:
